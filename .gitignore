@@ -1,0 +1,9 @@
+node_modules
+.env
+bengkel.db
+bengkel.db-journal
+public/uploads
+*.log
+npm-debug.log*
+yarn-error.log*
+.DS_Store

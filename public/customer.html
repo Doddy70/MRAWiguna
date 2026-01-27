@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Customer - Bengkel Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <div class="customer-layout">
+      <aside class="customer-sidebar">
+        <div class="customer-side-brand">
+          <img src="/logo_panjang_bengkelwiguna%20.png" alt="Bengkel Wiguna" class="customer-logo" />
+          <span>Portal Kustomer</span>
+        </div>
+        <nav class="customer-nav">
+          <button class="customer-nav-item active">
+            <span class="nav-dot">🏠</span>
+            <span>Dashboard</span>
+          </button>
+          <button class="customer-nav-item">
+            <span class="nav-dot">🔧</span>
+            <span>Progress Servis</span>
+          </button>
+          <button class="customer-nav-item">
+            <span class="nav-dot">💬</span>
+            <span>Chat Agent</span>
+          </button>
+          <button class="customer-nav-item">
+            <span class="nav-dot">📅</span>
+            <span>Booking</span>
+          </button>
+        </nav>
+        <div class="customer-profile">
+          <div class="profile-avatar">BW</div>
+          <div>
+            <strong class="customer-name-side">Pelanggan</strong>
+            <span class="customer-username-side">-</span>
+          </div>
+          <button class="ghost-btn" id="customer-logout">Keluar</button>
+        </div>
+      </aside>
+
+      <main class="customer-main">
+        <header class="customer-topbar">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="tagline">Pantau progress servis dan chat dengan admin bengkel.</p>
+          </div>
+          <div class="customer-actions">
+            <button class="outline" id="open-booking">Buat Booking Baru</button>
+          </div>
+        </header>
+
+        <section class="customer-stats">
+          <div class="stat-card">
+            <span>Username</span>
+            <strong id="customer-username">-</strong>
+          </div>
+          <div class="stat-card">
+            <span>No HP</span>
+            <strong id="customer-phone">-</strong>
+          </div>
+          <div class="stat-card">
+            <span>Status</span>
+            <strong>Aktif</strong>
+          </div>
+        </section>
+
+        <section class="panel customer-tracking">
+          <div class="panel-header">
+            <div>
+              <h2>Tinjau progress servis kamu</h2>
+              <p class="chat-hint">Pantau pekerjaan mekanik dan penggantian parts.</p>
+            </div>
+          </div>
+          <div id="service-tracking-list" class="tracking-list"></div>
+        </section>
+
+        <section class="panel customer-articles">
+          <div class="panel-header">
+            <div>
+              <h2>Artikel Bengkel Wiguna</h2>
+              <p class="chat-hint">Tips servis dan informasi terbaru dari bengkel.</p>
+            </div>
+          </div>
+          <div id="customer-articles-list" class="media-grid"></div>
+        </section>
+
+        <section class="panel customer-videos">
+          <div class="panel-header">
+            <div>
+              <h2>Video Bengkel Wiguna</h2>
+              <p class="chat-hint">Tonton update dan edukasi servis dari channel kami.</p>
+            </div>
+          </div>
+          <div id="customer-videos-list" class="media-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal" id="booking-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Form Booking Baru</h3>
+          <button class="ghost-btn" id="close-booking-modal">Tutup</button>
+        </div>
+        <form id="customer-booking-form" class="booking-form">
+          <label>
+            Nama
+            <input name="name" type="text" placeholder="Nama lengkap" required />
+          </label>
+          <label>
+            No HP / WhatsApp
+            <input name="phone" type="tel" placeholder="08xxxxxxxxxx" required />
+          </label>
+          <label>
+            Plat Nomor
+            <input name="plate" type="text" placeholder="B 1234 ABC" required />
+          </label>
+          <label>
+            Tipe / Merek Kendaraan
+            <input name="vehicle" type="text" placeholder="Contoh: Toyota Avanza 2021" required />
+          </label>
+          <label>
+            Kota Domisili
+            <input name="city" type="text" placeholder="Contoh: Depok" required />
+          </label>
+          <label>
+            Pilihan Servis
+            <select name="service" id="customer-service-select" required></select>
+          </label>
+          <div class="row">
+            <label>
+              Tanggal
+              <input name="date" type="date" required />
+            </label>
+            <label>
+              Jam
+              <input name="time" type="time" required />
+            </label>
+          </div>
+          <label>
+            Keluhan (opsional)
+            <textarea name="complaint" rows="3" placeholder="Contoh: bunyi di kaki-kaki"></textarea>
+          </label>
+          <button type="submit" class="primary">Kirim Booking</button>
+        </form>
+        <div id="customer-booking-result" class="result"></div>
+      </div>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

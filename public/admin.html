@@ -1,0 +1,1811 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Booking - Bengkel Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="admin-shell" id="admin-shell">
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+      <aside class="admin-sidebar" id="admin-sidebar">
+        <div class="sidebar-brand">
+          <img src="/logo_panjang_bengkelwiguna%20.png" alt="Bengkel Wiguna" class="sidebar-logo" />
+          <div class="brand-text">
+            <div class="brand">Admin MRA</div>
+            <p>Management Reservation Assistant</p>
+          </div>
+          <button class="sidebar-close" id="sidebar-close">×</button>
+        </div>
+        <nav class="sidebar-nav">
+          <button class="nav-pill active" data-section="overview">
+            <span class="nav-icon">O</span>
+            <span class="nav-text">Overview</span>
+          </button>
+          <button class="nav-pill" data-section="reservasi">
+            <span class="nav-icon">R</span>
+            <span class="nav-text">Reservasi</span>
+          </button>
+          <button class="nav-pill" data-section="progress">
+            <span class="nav-icon">S</span>
+            <span class="nav-text">Progress Servis</span>
+          </button>
+          <button class="nav-pill" data-section="pelanggan">
+            <span class="nav-icon">P</span>
+            <span class="nav-text">Pelanggan</span>
+          </button>
+          <button class="nav-pill">
+            <span class="nav-icon">L</span>
+            <span class="nav-text">Laporan</span>
+          </button>
+          <button class="nav-pill ghost" id="refresh-btn">
+            <span class="nav-icon">RF</span>
+            <span class="nav-text">Refresh</span>
+          </button>
+          <button class="nav-pill ghost" id="logout-btn">
+            <span class="nav-icon">X</span>
+            <span class="nav-text">Keluar</span>
+          </button>
+        </nav>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-topbar">
+          <div class="topbar-title">
+            <button class="sidebar-toggle inline-toggle" data-sidebar-toggle aria-label="Menu">☰</button>
+            <img src="/logo_panjang_bengkelwiguna%20.png" alt="Bengkel Wiguna" class="admin-logo" />
+          </div>
+          <div class="topbar-actions">
+            <button class="sidebar-toggle" data-sidebar-toggle aria-label="Menu">☰</button>
+          </div>
+        </header>
+
+        <section class="admin-summary" id="overview-section">
+          <div class="summary-card">
+            <span>Total Reservasi</span>
+            <strong id="total-count">0</strong>
+          </div>
+          <div class="summary-card">
+            <span>Menunggu</span>
+            <strong id="waiting-count">0</strong>
+          </div>
+          <div class="summary-card">
+            <span>Dihubungi</span>
+            <strong id="contacted-count">0</strong>
+          </div>
+          <div class="summary-card">
+            <span>Dijadwalkan</span>
+            <strong id="scheduled-count">0</strong>
+          </div>
+          <div class="summary-card chart-card">
+            <span>Trend 7 Hari</span>
+            <canvas id="trend-chart" height="90"></canvas>
+          </div>
+        </section>
+
+        <section class="panel admin-panel" id="reservasi-section">
+          <div class="panel-header">
+            <div>
+              <h2>Reservasi Masuk</h2>
+              <p id="admin-status" class="result"></p>
+            </div>
+            <button class="ghost-btn" id="walkin-open">Tambah Reservasi (Walk-in)</button>
+          </div>
+          <div class="trash-tabs">
+            <button class="tab-pill active" data-trash="0">
+              Semua <span id="active-count">0</span>
+            </button>
+            <button class="tab-pill" data-trash="1">
+              Trash <span id="trash-count">0</span>
+            </button>
+          </div>
+          <div class="panel-tools filters">
+            <div class="panel-tools-left">
+              <button class="danger-btn" id="delete-selected" disabled>Arsipkan Terpilih</button>
+            </div>
+            <div class="panel-tools-right">
+              <input id="search-input" type="search" placeholder="Cari nama / plat / layanan" />
+              <input id="date-filter" type="date" />
+              <label class="upload-btn">
+                Import CSV
+                <input type="file" id="csv-input" accept=".csv" />
+              </label>
+              <button class="ghost-btn" id="export-btn">Export CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="bookings-table">
+              <thead>
+                <tr>
+                  <th class="check-col">
+                    <input type="checkbox" id="select-all" aria-label="Pilih semua" />
+                  </th>
+                  <th>Nama</th>
+                <th>No HP</th>
+                <th>Plat</th>
+                <th>Tipe/Merek</th>
+                <th>Kota</th>
+                <th>Pilihan Servis</th>
+                <th>Tanggal</th>
+                <th>Jam</th>
+                  <th>Keluhan</th>
+                <th>Status</th>
+                <th>Reschedule</th>
+                <th>Edit</th>
+                <th>Follow‑up</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel admin-panel" id="progress-section">
+        <div class="panel-header">
+          <div>
+            <h2>Progress Hari Ini</h2>
+            <p class="result" id="progress-status"></p>
+            <p class="hint">Filter servis yang sudah <strong>Check-in</strong> atau sedang dikerjakan.</p>
+          </div>
+        </div>
+        <div class="quick-filters">
+          <button class="chip" data-status-filter="Check-in">Check-in</button>
+          <button class="chip" data-status-filter="Dalam Pengerjaan">Dalam Pengerjaan</button>
+          <button class="chip" data-status-filter="">Semua</button>
+        </div>
+        <div class="panel-tools filters">
+          <select id="status-filter">
+            <option value="">Semua Status</option>
+            <option value="Check-in">Check-in</option>
+            <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
+          </select>
+        </div>
+        <div id="progress-list" class="tracking-list"></div>
+      </section>
+
+      <section class="panel admin-panel" id="pelanggan-section">
+        <div class="panel-header">
+          <div>
+            <h2>Data Pelanggan</h2>
+            <p class="result" id="customer-status"></p>
+          </div>
+        </div>
+        <div class="panel-tools customer-tools">
+          <input id="customer-search" type="search" placeholder="Cari nama / no HP / plat / merek" />
+          <select id="customer-sort">
+            <option value="last-desc">Terakhir Booking (Terbaru)</option>
+            <option value="last-asc">Terakhir Booking (Terlama)</option>
+            <option value="total-desc">Total Booking (Terbanyak)</option>
+            <option value="total-asc">Total Booking (Tersedikit)</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="customers-table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>No HP</th>
+                <th>Plat</th>
+                <th>Tipe/Merek</th>
+                <th>Total Booking</th>
+                <th>Terakhir Booking</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal" id="reschedule-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Reschedule Booking</h3>
+          <button class="ghost-btn" id="close-reschedule">Tutup</button>
+        </div>
+        <form id="reschedule-form" class="booking-form">
+          <input type="hidden" id="reschedule-id" />
+          <label>
+            Tanggal baru
+            <input type="date" id="reschedule-date" required />
+          </label>
+          <label>
+            Jam baru
+            <input type="time" id="reschedule-time" required />
+          </label>
+          <label>
+            Alasan reschedule
+            <textarea id="reschedule-reason" rows="3" placeholder="Contoh: slot penuh, minta jadwal sore" required></textarea>
+          </label>
+          <button type="submit" class="primary">Simpan</button>
+        </form>
+      </div>
+    </div>
+
+
+    <div class="modal" id="edit-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Edit Reservasi</h3>
+          <button class="ghost-btn" id="close-edit">Tutup</button>
+        </div>
+        <form id="edit-form" class="booking-form">
+          <input type="hidden" id="edit-id" />
+          <h4 class="form-section-title">Data Reservasi</h4>
+          <div class="edit-grid">
+            <label>
+              Nama
+              <input id="edit-name" type="text" required />
+            </label>
+            <label>
+              No HP
+              <input id="edit-phone" type="tel" required />
+            </label>
+            <label>
+              Plat
+              <input id="edit-plate" type="text" required />
+            </label>
+            <label>
+              Tipe / Merek
+              <input id="edit-vehicle" type="text" required />
+            </label>
+            <label>
+              Kota
+              <input id="edit-city" type="text" required />
+            </label>
+            <label>
+              Pilihan Servis
+              <select id="edit-service" required>
+                <option value="Cek Kaki Kaki">Cek Kaki Kaki</option>
+                <option value="Detoks Mesin">Detoks Mesin</option>
+                <option value="Semi Overhaul">Semi Overhaul</option>
+                <option value="Coolant Changer / Flush">Coolant Changer / Flush</option>
+                <option value="Penggantian Oli">Penggantian Oli</option>
+                <option value="Penggantian Ban">Penggantian Ban</option>
+                <option value="Spooring Balancing">Spooring Balancing</option>
+                <option value="Rem & Rotasi Roda">Rem & Rotasi Roda</option>
+                <option value="Servis Berkala">Servis Berkala</option>
+                <option value="Cars Detailing / Wash">Cars Detailing / Wash</option>
+                <option value="Servis Lain nya">Servis Lain nya</option>
+              </select>
+            </label>
+            <div class="row span-2">
+              <label>
+                Tanggal
+                <input id="edit-date" type="date" required />
+              </label>
+              <label>
+                Jam
+                <input id="edit-time" type="time" required />
+              </label>
+            </div>
+            <label class="span-2">
+              Keluhan
+              <textarea id="edit-complaint" rows="3"></textarea>
+            </label>
+          </div>
+          <h4 class="form-section-title">Update Progress Prospek</h4>
+          <label class="status-field">
+            <div class="label-row">
+              <span>Status</span>
+              <span id="edit-status-badge" class="status-badge">Check-in</span>
+            </div>
+            <select id="edit-status" required>
+              <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+              <option value="Dihubungi">Dihubungi</option>
+              <option value="Check-in">Check-in</option>
+              <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
+              <option value="Dijadwalkan">Dijadwalkan</option>
+              <option value="Selesai">Selesai</option>
+              <option value="Batal">Batal</option>
+            </select>
+            <span id="edit-status-hint" class="status-hint">
+              Status <strong>Check-in</strong> akan menampilkan booking di menu Progress Servis.
+            </span>
+          </label>
+          <label>
+            Priority
+            <select id="edit-priority">
+              <option value="">Normal</option>
+              <option value="urgent">Urgent</option>
+              <option value="repeat">Repeat Customer</option>
+            </select>
+          </label>
+          <label>
+            Mekanik
+            <select id="edit-mechanic">
+              <option value="">Belum di-assign</option>
+              <option value="Andi">Andi</option>
+              <option value="Bima">Bima</option>
+              <option value="Citra">Citra</option>
+            </select>
+          </label>
+          <button type="submit" class="primary">Simpan Perubahan</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="customer-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Profil Pelanggan</h3>
+          <button class="ghost-btn" id="close-customer">Tutup</button>
+        </div>
+        <div id="customer-detail" class="notes-content"></div>
+        <div class="panel-header" style="margin-top: 16px;">
+          <h4>Riwayat Booking</h4>
+        </div>
+        <div id="customer-bookings" class="notes-content"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="customer-edit-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Edit Data Pelanggan</h3>
+          <button class="ghost-btn" id="close-customer-edit">Tutup</button>
+        </div>
+        <form id="customer-edit-form" class="booking-form">
+          <input type="hidden" id="customer-edit-phone-old" />
+          <label>
+            Nama
+            <input id="customer-edit-name" type="text" required />
+          </label>
+          <label>
+            No HP
+            <input id="customer-edit-phone" type="tel" required />
+          </label>
+          <label>
+            Plat
+            <input id="customer-edit-plate" type="text" />
+          </label>
+          <label>
+            Tipe / Merek
+            <input id="customer-edit-vehicle" type="text" />
+          </label>
+          <button type="submit" class="primary">Simpan Perubahan</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="progress-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Progress Servis</h3>
+          <button class="ghost-btn" id="close-progress">Tutup</button>
+        </div>
+        <form id="progress-form" class="booking-form">
+          <input type="hidden" id="progress-id" />
+          <div class="progress-steps" id="progress-steps"></div>
+          <label>
+            Catatan mekanik / parts
+            <textarea id="progress-notes" rows="4" placeholder="Contoh: ganti kampas rem, flushing coolant"></textarea>
+          </label>
+          <label>
+            Parts yang diganti (pisahkan dengan koma)
+            <input id="progress-parts" type="text" placeholder="Contoh: kampas rem, oli mesin" />
+          </label>
+          <div class="row">
+            <label>
+              Estimasi selesai
+              <input id="progress-eta" type="datetime-local" />
+            </label>
+            <label>
+              Estimasi biaya (Rp)
+              <input id="progress-cost" type="number" min="0" step="1000" />
+            </label>
+          </div>
+          <label>
+            Upload foto progress
+            <input id="progress-photo" type="file" accept="image/*" />
+          </label>
+          <div id="progress-gallery" class="progress-gallery"></div>
+          <button type="submit" class="primary">Simpan Progress</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="wa-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h3>Follow-up WhatsApp</h3>
+            <p id="wa-preview" class="muted"></p>
+          </div>
+          <button class="ghost-btn" id="close-wa">Tutup</button>
+        </div>
+        <form id="wa-form" class="booking-form">
+          <input type="hidden" id="wa-phone" />
+          <label>
+            Pesan follow-up
+            <textarea id="wa-message" rows="6" placeholder="Tulis pesan follow-up untuk pelanggan..."></textarea>
+          </label>
+          <button type="submit" class="primary">Kirim WhatsApp</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal" id="walkin-modal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Tambah Reservasi Walk-in</h3>
+          <button class="ghost-btn" id="walkin-close">Tutup</button>
+        </div>
+        <form id="walkin-form" class="booking-form">
+          <label>
+            Nama
+            <input id="walkin-name" type="text" required />
+          </label>
+          <label>
+            No HP
+            <input id="walkin-phone" type="tel" required />
+          </label>
+          <label>
+            Plat
+            <input id="walkin-plate" type="text" required />
+          </label>
+          <label>
+            Tipe / Merek
+            <input id="walkin-vehicle" type="text" required />
+          </label>
+          <label>
+            Kota
+            <input id="walkin-city" type="text" required />
+          </label>
+          <label>
+            Pilihan Servis
+            <select id="walkin-service" required>
+              <option value="Cek Kaki Kaki">Cek Kaki Kaki</option>
+              <option value="Detoks Mesin">Detoks Mesin</option>
+              <option value="Semi Overhaul">Semi Overhaul</option>
+              <option value="Coolant Changer / Flush">Coolant Changer / Flush</option>
+              <option value="Penggantian Oli">Penggantian Oli</option>
+              <option value="Penggantian Ban">Penggantian Ban</option>
+              <option value="Spooring Balancing">Spooring Balancing</option>
+              <option value="Rem & Rotasi Roda">Rem & Rotasi Roda</option>
+              <option value="Servis Berkala">Servis Berkala</option>
+              <option value="Cars Detailing / Wash">Cars Detailing / Wash</option>
+              <option value="Servis Lain nya">Servis Lain nya</option>
+            </select>
+          </label>
+          <div class="row">
+            <label>
+              Tanggal
+              <input id="walkin-date" type="date" required />
+            </label>
+            <label>
+              Jam
+              <input id="walkin-time" type="time" required />
+            </label>
+          </div>
+          <label>
+            Keluhan
+            <textarea id="walkin-complaint" rows="3"></textarea>
+          </label>
+          <label>
+            Status
+            <select id="walkin-status" required>
+              <option value="Check-in">Check-in</option>
+              <option value="Dalam Pengerjaan">Dalam Pengerjaan</option>
+              <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
+              <option value="Dihubungi">Dihubungi</option>
+              <option value="Dijadwalkan">Dijadwalkan</option>
+            </select>
+          </label>
+          <button type="submit" class="primary">Simpan Reservasi</button>
+        </form>
+      </div>
+    </div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById("admin-status");
+      const tableBody = document.querySelector("#bookings-table tbody");
+      const logoutBtn = document.getElementById("logout-btn");
+      const refreshBtn = document.getElementById("refresh-btn");
+      const searchInput = document.getElementById("search-input");
+      const statusFilter = document.getElementById("status-filter");
+      const dateFilter = document.getElementById("date-filter");
+      const sidebar = document.getElementById("admin-sidebar");
+      const sidebarToggles = document.querySelectorAll("[data-sidebar-toggle]");
+      const sidebarClose = document.getElementById("sidebar-close");
+      const sidebarOverlay = document.getElementById("sidebar-overlay");
+      const adminShell = document.getElementById("admin-shell");
+      const csvInput = document.getElementById("csv-input");
+      const exportBtn = document.getElementById("export-btn");
+      const totalCount = document.getElementById("total-count");
+      const waitingCount = document.getElementById("waiting-count");
+      const contactedCount = document.getElementById("contacted-count");
+      const scheduledCount = document.getElementById("scheduled-count");
+      const rescheduleModal = document.getElementById("reschedule-modal");
+      const rescheduleForm = document.getElementById("reschedule-form");
+      const rescheduleId = document.getElementById("reschedule-id");
+      const rescheduleDate = document.getElementById("reschedule-date");
+      const rescheduleTime = document.getElementById("reschedule-time");
+      const rescheduleReason = document.getElementById("reschedule-reason");
+      const closeReschedule = document.getElementById("close-reschedule");
+      const chartCanvas = document.getElementById("trend-chart");
+      const editModal = document.getElementById("edit-modal");
+      const editForm = document.getElementById("edit-form");
+      const editId = document.getElementById("edit-id");
+      const editName = document.getElementById("edit-name");
+      const editPhone = document.getElementById("edit-phone");
+      const editPlate = document.getElementById("edit-plate");
+      const editVehicle = document.getElementById("edit-vehicle");
+      const editCity = document.getElementById("edit-city");
+      const editStatus = document.getElementById("edit-status");
+      const editPriority = document.getElementById("edit-priority");
+      const editMechanic = document.getElementById("edit-mechanic");
+      const editService = document.getElementById("edit-service");
+      const editDate = document.getElementById("edit-date");
+      const editTime = document.getElementById("edit-time");
+      const editComplaint = document.getElementById("edit-complaint");
+      const editStatusBadge = document.getElementById("edit-status-badge");
+      const editStatusHint = document.getElementById("edit-status-hint");
+      const closeEdit = document.getElementById("close-edit");
+      const progressModal = document.getElementById("progress-modal");
+      const closeProgress = document.getElementById("close-progress");
+      const progressForm = document.getElementById("progress-form");
+      const progressId = document.getElementById("progress-id");
+      const progressSteps = document.getElementById("progress-steps");
+      const progressNotes = document.getElementById("progress-notes");
+      const progressParts = document.getElementById("progress-parts");
+      const progressEta = document.getElementById("progress-eta");
+      const progressCost = document.getElementById("progress-cost");
+      const progressPhoto = document.getElementById("progress-photo");
+      const progressGallery = document.getElementById("progress-gallery");
+      const progressList = document.getElementById("progress-list");
+      const progressStatus = document.getElementById("progress-status");
+      const quickFilterButtons = document.querySelectorAll("[data-status-filter]");
+      const progressSection = document.getElementById("progress-section");
+      let progressImages = [];
+      const overviewSection = document.getElementById("overview-section");
+      const reservasiSection = document.getElementById("reservasi-section");
+      const pelangganSection = document.getElementById("pelanggan-section");
+      const selectAll = document.getElementById("select-all");
+      const deleteSelectedBtn = document.getElementById("delete-selected");
+      let selectedIds = new Set();
+      let renderedIds = [];
+      const walkinOpen = document.getElementById("walkin-open");
+      const walkinModal = document.getElementById("walkin-modal");
+      const walkinClose = document.getElementById("walkin-close");
+      const walkinForm = document.getElementById("walkin-form");
+      const walkinName = document.getElementById("walkin-name");
+      const walkinPhone = document.getElementById("walkin-phone");
+      const walkinPlate = document.getElementById("walkin-plate");
+      const walkinVehicle = document.getElementById("walkin-vehicle");
+      const walkinCity = document.getElementById("walkin-city");
+      const walkinService = document.getElementById("walkin-service");
+      const walkinDate = document.getElementById("walkin-date");
+      const walkinTime = document.getElementById("walkin-time");
+      const walkinComplaint = document.getElementById("walkin-complaint");
+      const walkinStatus = document.getElementById("walkin-status");
+      const trashTabs = document.querySelectorAll("[data-trash]");
+      const activeCountEl = document.getElementById("active-count");
+      const trashCountEl = document.getElementById("trash-count");
+      let viewMode = "active";
+      const customersTable = document.querySelector("#customers-table tbody");
+      const customerStatus = document.getElementById("customer-status");
+      const customerSearch = document.getElementById("customer-search");
+      const customerSort = document.getElementById("customer-sort");
+      const customerModal = document.getElementById("customer-modal");
+      const closeCustomer = document.getElementById("close-customer");
+      const customerDetail = document.getElementById("customer-detail");
+      const customerBookings = document.getElementById("customer-bookings");
+      const customerEditModal = document.getElementById("customer-edit-modal");
+      const closeCustomerEdit = document.getElementById("close-customer-edit");
+      const customerEditForm = document.getElementById("customer-edit-form");
+      const waModal = document.getElementById("wa-modal");
+      const waForm = document.getElementById("wa-form");
+      const waPhone = document.getElementById("wa-phone");
+      const waMessage = document.getElementById("wa-message");
+      const waPreview = document.getElementById("wa-preview");
+      const closeWa = document.getElementById("close-wa");
+      const customerEditPhoneOld = document.getElementById("customer-edit-phone-old");
+      const customerEditName = document.getElementById("customer-edit-name");
+      const customerEditPhone = document.getElementById("customer-edit-phone");
+      const customerEditPlate = document.getElementById("customer-edit-plate");
+      const customerEditVehicle = document.getElementById("customer-edit-vehicle");
+      const navButtons = document.querySelectorAll(".nav-pill[data-section]");
+      let cachedBookings = [];
+      let cachedArchived = [];
+      const progressStepLabels = [
+        "Diagnosa awal",
+        "Pembongkaran",
+        "Penggantian parts",
+        "Test jalan",
+      ];
+      let cachedCustomers = [];
+
+      function formatDate(value) {
+        if (!value) return "-";
+        const date = new Date(value);
+        return new Intl.DateTimeFormat("id-ID", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(date);
+      }
+
+      function updateSummary(bookings) {
+        totalCount.textContent = bookings.length;
+        waitingCount.textContent = bookings.filter((b) => b.status === "Menunggu Konfirmasi").length;
+        contactedCount.textContent = bookings.filter((b) => b.status === "Dihubungi").length;
+        scheduledCount.textContent = bookings.filter((b) => b.status === "Dijadwalkan").length;
+      }
+
+      function renderTable(bookings) {
+        tableBody.innerHTML = "";
+        renderedIds = bookings.map((b) => b.id);
+        if (!bookings.length) {
+          statusEl.textContent =
+            viewMode === "trash" ? "Belum ada data di Trash." : "Belum ada reservasi.";
+          updateSelectionUI();
+          return;
+        }
+        statusEl.textContent =
+          viewMode === "trash"
+            ? `Total ${bookings.length} data di Trash`
+            : `Total ${bookings.length} reservasi`;
+        bookings.forEach((booking) => {
+          const row = document.createElement("tr");
+          const isTrash = viewMode === "trash";
+          row.innerHTML = `
+            <td data-label="Pilih" class="check-col">
+              <input class="row-check" type="checkbox" data-id="${booking.id}" ${
+                selectedIds.has(booking.id) ? "checked" : ""
+              } />
+            </td>
+            <td data-label="Nama">${booking.name}</td>
+            <td data-label="No HP">${booking.phone}</td>
+            <td data-label="Plat">${booking.plate}</td>
+            <td data-label="Tipe/Merek">${booking.vehicle || "-"}</td>
+            <td data-label="Kota">${booking.city || "-"}</td>
+            <td data-label="Pilihan Servis">${booking.service}</td>
+            <td data-label="Tanggal">${booking.date}</td>
+            <td data-label="Jam">${booking.time}</td>
+            <td data-label="Keluhan">${booking.complaint || "-"}</td>
+            <td data-label="Status"><span class="status-pill status-${booking.status.replace(/\s+/g, '').toLowerCase()}">${booking.status}</span></td>
+            <td data-label="Reschedule">
+              ${
+                isTrash
+                  ? `<button class="restore-btn" data-id="${booking.id}">Pulihkan</button>`
+                  : `<button class="reschedule-btn" data-id="${booking.id}">Ubah</button>`
+              }
+            </td>
+            <td data-label="Edit">
+              ${
+                isTrash
+                  ? `<button class="delete-perm-btn" data-id="${booking.id}">Hapus Permanen</button>`
+                  : `<button class="edit-btn" data-id="${booking.id}">Edit</button>`
+              }
+            </td>
+            <td data-label="Follow‑up">
+              ${
+                isTrash
+                  ? `<span class="muted">-</span>`
+                  : `<button class="wa-btn" data-wa="${booking.phone}" data-name="${booking.name}" data-service="${booking.service}" data-date="${booking.date}" data-time="${booking.time}" data-plate="${booking.plate}" data-complaint="${booking.complaint || ""}">
+                WhatsApp
+              </button>`
+              }
+            </td>
+          `;
+
+          tableBody.appendChild(row);
+        });
+        attachRowHandlers();
+        updateSelectionUI();
+      }
+
+      function attachRowHandlers() {
+        tableBody.querySelectorAll(".row-check").forEach((checkbox) => {
+          checkbox.addEventListener("change", (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            if (!id) return;
+            if (event.currentTarget.checked) {
+              selectedIds.add(id);
+            } else {
+              selectedIds.delete(id);
+            }
+            updateSelectionUI();
+          });
+        });
+
+        tableBody.querySelectorAll(".restore-btn").forEach((btn) => {
+          btn.addEventListener("click", async (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            if (!id) return;
+            await restoreBookings([id]);
+          });
+        });
+
+        tableBody.querySelectorAll(".delete-perm-btn").forEach((btn) => {
+          btn.addEventListener("click", async (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            if (!id) return;
+            const confirmed = window.confirm(
+              "Hapus permanen data ini? Tindakan ini tidak bisa dibatalkan."
+            );
+            if (!confirmed) return;
+            await deletePermanent([id]);
+          });
+        });
+
+        tableBody.querySelectorAll(".wa-btn").forEach((btn) => {
+          btn.addEventListener("click", async (event) => {
+            const target = event.currentTarget;
+            const phone = target.getAttribute("data-wa") || "";
+            const name = target.getAttribute("data-name") || "";
+            const service = target.getAttribute("data-service") || "";
+            const date = target.getAttribute("data-date") || "";
+            const time = target.getAttribute("data-time") || "";
+            const plate = target.getAttribute("data-plate") || "";
+            const complaint = target.getAttribute("data-complaint") || "";
+
+            try {
+              const params = new URLSearchParams({
+                name,
+                service,
+                date,
+                time,
+                plate,
+                complaint,
+              });
+              const res = await fetch(`/api/admin/template?${params.toString()}`);
+              const data = await res.json();
+              if (!res.ok) {
+                throw new Error(data.error || "Gagal membuat template");
+              }
+              openWaModal({
+                phone,
+                name,
+                plate,
+                service,
+                status: "",
+                progress: null,
+              });
+              waMessage.value = data.text || "";
+            } catch (error) {
+              statusEl.textContent = error.message;
+            }
+          });
+        });
+
+
+        tableBody.querySelectorAll(".reschedule-btn").forEach((btn) => {
+          btn.addEventListener("click", async (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            rescheduleId.value = id;
+            rescheduleDate.value = "";
+            rescheduleTime.value = "";
+            rescheduleReason.value = "";
+            rescheduleModal.setAttribute("aria-hidden", "false");
+          });
+        });
+
+        tableBody.querySelectorAll(".edit-btn").forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            const booking = cachedBookings.find((b) => b.id === id);
+            if (!booking) return;
+            editId.value = booking.id;
+            editName.value = booking.name;
+            editPhone.value = booking.phone;
+            editPlate.value = booking.plate;
+            editVehicle.value = booking.vehicle || "";
+            editCity.value = booking.city || "";
+            editStatus.value = booking.status || "Menunggu Konfirmasi";
+            editPriority.value = booking.priority || "";
+            editMechanic.value = booking.mechanic || "";
+            editService.value = booking.service;
+            editDate.value = booking.date || new Date().toISOString().slice(0, 10);
+            editTime.value = booking.time || "09:00";
+            editComplaint.value = booking.complaint || "";
+            updateStatusHighlight();
+            editModal.setAttribute("aria-hidden", "false");
+          });
+        });
+
+
+        // status, priority, dan mekanik dikelola di modal edit
+
+      }
+
+      async function loadBookings() {
+        statusEl.textContent = "Memuat data...";
+        try {
+          const [resActive, resTrash] = await Promise.all([
+            fetch("/api/bookings"),
+            fetch("/api/bookings?archived=1"),
+          ]);
+          const dataActive = await resActive.json();
+          const dataTrash = await resTrash.json();
+          if (!resActive.ok) throw new Error(dataActive.error || "Gagal memuat data");
+          if (!resTrash.ok) throw new Error(dataTrash.error || "Gagal memuat trash");
+
+          cachedBookings = dataActive.bookings || [];
+          const rawTrash = dataTrash.bookings || [];
+          cachedArchived = rawTrash.filter((b) => b.archivedAt);
+          if (activeCountEl) activeCountEl.textContent = cachedBookings.length;
+          if (trashCountEl) trashCountEl.textContent = cachedArchived.length;
+          updateSummary(cachedBookings);
+          applyReservationFilters();
+          loadStats();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      }
+
+      async function loadStats() {
+        if (!chartCanvas) return;
+        const res = await fetch("/api/admin/stats?days=7");
+        const data = await res.json();
+        if (!res.ok) return;
+        const ctx = chartCanvas.getContext("2d");
+        const width = chartCanvas.width;
+        const height = chartCanvas.height;
+        const max = Math.max(...data.data, 1);
+        ctx.clearRect(0, 0, width, height);
+        ctx.strokeStyle = "#224297";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        data.data.forEach((value, idx) => {
+          const x = (idx / (data.data.length - 1)) * (width - 20) + 10;
+          const y = height - (value / max) * (height - 20) - 10;
+          if (idx === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.fillStyle = "#ffd900";
+        data.data.forEach((value, idx) => {
+          const x = (idx / (data.data.length - 1)) * (width - 20) + 10;
+          const y = height - (value / max) * (height - 20) - 10;
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      async function loadCustomers() {
+        if (!customersTable) return;
+        customerStatus.textContent = "Memuat data pelanggan...";
+        try {
+          const res = await fetch("/api/admin/customers");
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal memuat pelanggan");
+          cachedCustomers = data.customers || [];
+          if (!cachedCustomers.length) {
+            customersTable.innerHTML = "";
+            customerStatus.textContent = "Belum ada data pelanggan.";
+            return;
+          }
+          applyCustomerFilters();
+        } catch (error) {
+          customerStatus.textContent = error.message;
+        }
+      }
+
+      function applyCustomerFilters() {
+        const q = customerSearch?.value.trim().toLowerCase() || "";
+        const sort = customerSort?.value || "last-desc";
+        let filtered = [...cachedCustomers];
+
+        if (q) {
+          filtered = filtered.filter((c) =>
+            `${c.name} ${c.phone} ${c.plate || ""} ${c.vehicle || ""}`.toLowerCase().includes(q)
+          );
+        }
+
+        filtered.sort((a, b) => {
+          if (sort === "total-desc") return (b.totalBookings || 0) - (a.totalBookings || 0);
+          if (sort === "total-asc") return (a.totalBookings || 0) - (b.totalBookings || 0);
+          if (sort === "last-asc") return new Date(a.lastBooking) - new Date(b.lastBooking);
+          return new Date(b.lastBooking) - new Date(a.lastBooking);
+        });
+
+        renderCustomerTable(filtered);
+      }
+
+      function renderCustomerTable(customers) {
+        customersTable.innerHTML = "";
+        customerStatus.textContent = `Total ${customers.length} pelanggan`;
+        customers.forEach((c) => {
+          const row = document.createElement("tr");
+          row.dataset.phone = c.phone;
+          row.innerHTML = `
+            <td data-label="Nama">${c.name}</td>
+            <td data-label="No HP">${c.phone}</td>
+            <td data-label="Plat">${c.plate || "-"}</td>
+            <td data-label="Tipe/Merek">${c.vehicle || "-"}</td>
+            <td data-label="Total Booking">${c.totalBookings}</td>
+            <td data-label="Terakhir Booking">${formatDate(c.lastBooking)}</td>
+            <td data-label="Edit">
+              <button class="edit-btn edit-customer-btn" data-phone="${c.phone}">Edit</button>
+            </td>
+          `;
+          customersTable.appendChild(row);
+        });
+        attachCustomerHandlers();
+      }
+
+      function attachCustomerHandlers() {
+        customersTable.querySelectorAll("tr").forEach((row) => {
+          row.addEventListener("click", (event) => {
+            if (event.target.closest(".edit-customer-btn")) return;
+            const phone = row.dataset.phone;
+            if (phone) openCustomerDetail(phone);
+          });
+        });
+
+        customersTable.querySelectorAll(".edit-customer-btn").forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            const phone = event.currentTarget.getAttribute("data-phone");
+            const customer = cachedCustomers.find((c) => c.phone === phone);
+            if (!customer) return;
+            customerEditPhoneOld.value = customer.phone;
+            customerEditName.value = customer.name || "";
+            customerEditPhone.value = customer.phone || "";
+            customerEditPlate.value = customer.plate || "";
+            customerEditVehicle.value = customer.vehicle || "";
+            customerEditModal.setAttribute("aria-hidden", "false");
+          });
+        });
+      }
+
+      async function openCustomerDetail(phone) {
+        customerDetail.innerHTML = "";
+        customerBookings.innerHTML = "";
+        customerModal.setAttribute("aria-hidden", "false");
+        const customer = cachedCustomers.find((c) => c.phone === phone);
+        if (customer) {
+          customerDetail.innerHTML = `
+            <div class="note-item">
+              <strong>${customer.name}</strong>
+              <div>No HP: ${customer.phone}</div>
+              <div>Plat: ${customer.plate || "-"}</div>
+              <div>Tipe/Merek: ${customer.vehicle || "-"}</div>
+              <div>Total Booking: ${customer.totalBookings}</div>
+              <div>Terakhir Booking: ${formatDate(customer.lastBooking)}</div>
+            </div>
+          `;
+        }
+        try {
+          const res = await fetch(`/api/admin/customers/${encodeURIComponent(phone)}/bookings`);
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal memuat riwayat");
+          const bookings = data.bookings || [];
+          if (!bookings.length) {
+            customerBookings.innerHTML = "<p>Belum ada riwayat booking.</p>";
+            return;
+          }
+          customerBookings.innerHTML = bookings
+            .map(
+              (b) => `
+                <div class="note-item">
+                  <div><strong>${b.service}</strong> • ${b.plate || "-"} • ${b.vehicle || "-"}</div>
+                  <div>${b.date} ${b.time} • ${b.status}</div>
+                  <div class="note-meta">${formatDate(b.createdAt)}</div>
+                  <div>${b.complaint || "-"}</div>
+                </div>
+              `
+            )
+            .join("");
+        } catch (error) {
+          customerBookings.innerHTML = `<p>${error.message}</p>`;
+        }
+      }
+
+      async function checkAuth() {
+        const res = await fetch("/api/admin/me");
+        if (!res.ok) {
+          window.location.href = "/admin-login.html";
+          return;
+        }
+        loadBookings();
+      }
+
+      logoutBtn?.addEventListener("click", async () => {
+        await fetch("/api/admin/logout", { method: "POST" });
+        window.location.href = "/admin-login.html";
+      });
+
+      waForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const phone = (waPhone.value || "").replace(/[^0-9]/g, "");
+        if (!phone) {
+          statusEl.textContent = "Nomor WhatsApp tidak valid.";
+          return;
+        }
+        const text = waMessage.value || "";
+        const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, "_blank");
+        waModal.setAttribute("aria-hidden", "true");
+      });
+
+      closeWa?.addEventListener("click", () => {
+        waModal.setAttribute("aria-hidden", "true");
+      });
+      refreshBtn?.addEventListener("click", loadBookings);
+
+      function applyReservationFilters() {
+        const q = searchInput.value.trim().toLowerCase();
+        const date = dateFilter.value;
+        let filtered = viewMode === "trash" ? [...cachedArchived] : [...cachedBookings];
+
+        if (q) {
+          filtered = filtered.filter((b) =>
+            `${b.name} ${b.plate} ${b.service}`.toLowerCase().includes(q)
+          );
+        }
+        if (date) {
+          filtered = filtered.filter((b) => b.date === date);
+        }
+        renderTable(filtered);
+        applyProgressFilters();
+      }
+
+      function applyProgressFilters() {
+        if (!progressList) return;
+        const status = statusFilter?.value;
+        let active = cachedBookings.filter(
+          (b) => b.status === "Check-in" || b.status === "Dalam Pengerjaan"
+        );
+        if (status) {
+          active = active.filter((b) => b.status === status);
+        }
+        renderProgressList(active);
+      }
+
+      function renderProgressList(list) {
+        if (!progressList) return;
+        const active = Array.isArray(list)
+          ? list
+          : cachedBookings.filter(
+              (b) => b.status === "Check-in" || b.status === "Dalam Pengerjaan"
+            );
+        if (!active.length) {
+          progressStatus.textContent = "Belum ada servis yang sedang dikerjakan.";
+          progressList.innerHTML = "";
+          return;
+        }
+        progressStatus.textContent = `Total ${active.length} servis berjalan`;
+        progressList.innerHTML = active
+          .map((b) => {
+            let progress = null;
+            if (b.progress) {
+              try {
+                progress = JSON.parse(b.progress);
+              } catch (error) {
+                progress = null;
+              }
+            }
+            const steps =
+              progress?.steps?.length
+                ? progress.steps
+                : progressStepLabels.map((label) => ({ label, done: false }));
+            return `
+              <div class="tracking-card">
+                <div class="tracking-header">
+                  <div>
+                    <strong>${b.service}</strong>
+                    <span>${b.name} • ${b.phone} • ${b.plate} • ${b.vehicle}</span>
+                  </div>
+                  <div class="tracking-badges">
+                    ${!progress?.steps?.some((s) => s.done) && b.status === "Check-in" ? '<span class="status-pill status-new">Baru check-in</span>' : ""}
+                    <span class="status-pill status-${b.status.replace(/\s+/g, '').toLowerCase()}">${b.status}</span>
+                  </div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" style="width: ${getProgressPercent(b.status, progress)}%"></div>
+                </div>
+                <div class="tracking-steps">
+                  ${steps
+                    .map(
+                      (s) =>
+                        `<div class="tracking-step ${s.done ? "done" : ""}"><span></span>${s.label}</div>`
+                    )
+                    .join("")}
+                </div>
+                <div class="tracking-notes">
+                  <strong>Laporan progress</strong>
+                  <ul>
+                    ${
+                      progress?.notes
+                        ? `<li>${progress.notes}</li>`
+                        : "<li>Belum ada catatan.</li>"
+                    }
+                    ${
+                      progress?.parts?.length
+                        ? `<li>Parts: ${progress.parts.join(", ")}</li>`
+                        : ""
+                    }
+                    ${progress?.eta ? `<li>Estimasi selesai: ${progress.eta}</li>` : ""}
+                    ${progress?.cost ? `<li>Estimasi biaya: Rp ${progress.cost}</li>` : ""}
+                  </ul>
+                </div>
+                <div class="tracking-actions">
+                  <button class="note-view-btn progress-btn" data-id="${b.id}">Update Progress</button>
+                  <button class="wa-btn wa-progress-btn" data-id="${b.id}">Kirim WA</button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+        attachProgressHandlers();
+      }
+
+      function getProgressPercent(status, progress) {
+        if (progress?.steps?.length) {
+          const done = progress.steps.filter((s) => s.done).length;
+          return Math.round((done / progress.steps.length) * 100);
+        }
+        if (status === "Menunggu Konfirmasi") return 25;
+        if (status === "Dihubungi") return 50;
+        if (status === "Check-in") return 50;
+        if (status === "Dalam Pengerjaan") return 75;
+        if (status === "Dijadwalkan") return 75;
+        if (status === "Selesai") return 100;
+        if (status === "Batal") return 0;
+        return 20;
+      }
+
+      function attachProgressHandlers() {
+        progressList.querySelectorAll(".progress-btn").forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            const booking = cachedBookings.find((b) => b.id === id);
+            if (!booking) return;
+            progressId.value = booking.id;
+            let stored = null;
+            if (booking.progress) {
+              try {
+                stored = JSON.parse(booking.progress);
+              } catch (error) {
+                stored = null;
+              }
+            }
+            const steps = progressStepLabels.map((label) => ({
+              label,
+              done: stored?.steps?.find((s) => s.label === label)?.done || false,
+            }));
+            progressSteps.innerHTML = steps
+              .map(
+                (step, idx) => `
+                  <label class="progress-step">
+                    <input type="checkbox" data-index="${idx}" ${
+                  step.done ? "checked" : ""
+                } />
+                    ${step.label}
+                  </label>
+                `
+              )
+              .join("");
+            progressNotes.value = stored?.notes || "";
+            progressParts.value = Array.isArray(stored?.parts) ? stored.parts.join(", ") : "";
+            progressEta.value = stored?.eta || "";
+            progressCost.value = stored?.cost || "";
+            progressImages = Array.isArray(stored?.images) ? stored.images : [];
+            renderProgressGallery();
+            progressModal.setAttribute("aria-hidden", "false");
+          });
+        });
+
+        progressList.querySelectorAll(".wa-progress-btn").forEach((btn) => {
+          btn.addEventListener("click", (event) => {
+            const id = event.currentTarget.getAttribute("data-id");
+            const booking = cachedBookings.find((b) => b.id === id);
+            if (!booking) return;
+            let progress = null;
+            if (booking.progress) {
+              try {
+                progress = JSON.parse(booking.progress);
+              } catch (error) {
+                progress = null;
+              }
+            }
+            openWaModal({
+              phone: booking.phone,
+              name: booking.name,
+              plate: booking.plate,
+              service: booking.service,
+              status: booking.status,
+              progress,
+            });
+          });
+        });
+      }
+
+      function isOverdue(createdAt) {
+        const created = new Date(createdAt);
+        const diff = Date.now() - created.getTime();
+        return diff > 24 * 60 * 60 * 1000;
+      }
+
+      function isValidPhone(value) {
+        const digits = value.replace(/[^0-9]/g, "");
+        return digits.length >= 8;
+      }
+
+      function isValidPlate(value) {
+        return value.trim().length >= 4;
+      }
+
+      function updateSelectionUI() {
+        const total = renderedIds.length;
+        const selectedInView = renderedIds.filter((id) => selectedIds.has(id)).length;
+        if (selectAll) {
+          selectAll.checked = total > 0 && selectedInView === total;
+          selectAll.indeterminate = selectedInView > 0 && selectedInView < total;
+        }
+        if (deleteSelectedBtn) {
+          deleteSelectedBtn.disabled = selectedIds.size === 0;
+          deleteSelectedBtn.textContent = selectedIds.size
+            ? `${viewMode === "trash" ? "Hapus Permanen" : "Arsipkan Terpilih"} (${selectedIds.size})`
+            : viewMode === "trash"
+              ? "Hapus Permanen"
+              : "Arsipkan Terpilih";
+        }
+      }
+
+      function buildProgressMessage({ name, service, plate, status, progress }) {
+        const displayName = name || "Pelanggan";
+        const statusLine = status ? `Status saat ini: ${status}.` : "";
+        const notes = progress?.notes ? `Catatan: ${progress.notes}` : "";
+        const parts =
+          progress?.parts?.length ? `Parts: ${progress.parts.join(", ")}` : "";
+        const eta = progress?.eta ? `Estimasi selesai: ${progress.eta}` : "";
+        const cost = progress?.cost ? `Estimasi biaya: Rp ${progress.cost}` : "";
+        const extra = [notes, parts, eta, cost].filter(Boolean).join(" • ");
+
+        if (status === "Check-in") {
+          return `Halo ${displayName}, mobil Anda untuk layanan ${service} (${plate}) sudah CHECK-IN di Bengkel Wiguna. ${statusLine} Tim kami mulai melakukan diagnosa awal. ${extra}`.trim();
+        }
+        if (status === "Dalam Pengerjaan") {
+          return `Halo ${displayName}, update pengerjaan layanan ${service} (${plate}). ${statusLine} Tim kami sedang mengerjakan kendaraan Anda. ${extra}`.trim();
+        }
+        if (status === "Selesai") {
+          return `Halo ${displayName}, layanan ${service} (${plate}) sudah SELESAI. ${extra} Silakan konfirmasi waktu pengambilan ya.`.trim();
+        }
+        if (status === "Dijadwalkan") {
+          return `Halo ${displayName}, layanan ${service} (${plate}) sudah DIJADWALKAN. ${statusLine} ${extra}`.trim();
+        }
+        if (status === "Dihubungi") {
+          return `Halo ${displayName}, kami sedang follow-up booking layanan ${service} (${plate}). ${statusLine} ${extra}`.trim();
+        }
+        if (status === "Menunggu Konfirmasi") {
+          return `Halo ${displayName}, kami menunggu konfirmasi untuk booking layanan ${service} (${plate}). ${statusLine} ${extra}`.trim();
+        }
+        if (status === "Batal") {
+          return `Halo ${displayName}, booking layanan ${service} (${plate}) dibatalkan. Jika ingin menjadwalkan ulang, kabari kami ya.`.trim();
+        }
+        return `Halo ${displayName}, update progress layanan ${service} (${plate}). ${statusLine} ${extra}`.trim();
+      }
+
+      function openWaModal({ phone, name, plate, service, status, progress }) {
+        waPhone.value = phone || "";
+        waMessage.value = buildProgressMessage({ name, service, plate, status, progress });
+        waPreview.textContent = `${name || "-"} • ${plate || "-"} • ${status || "-"}`;
+        waModal.setAttribute("aria-hidden", "false");
+      }
+
+      searchInput?.addEventListener("input", applyReservationFilters);
+      statusFilter?.addEventListener("change", applyProgressFilters);
+      dateFilter?.addEventListener("change", applyReservationFilters);
+      selectAll?.addEventListener("change", (event) => {
+        const checked = event.currentTarget.checked;
+        const checkboxes = tableBody.querySelectorAll(".row-check");
+        checkboxes.forEach((cb) => {
+          cb.checked = checked;
+          const id = cb.getAttribute("data-id");
+          if (!id) return;
+          if (checked) {
+            selectedIds.add(id);
+          } else {
+            selectedIds.delete(id);
+          }
+        });
+        updateSelectionUI();
+      });
+      deleteSelectedBtn?.addEventListener("click", async () => {
+        const ids = Array.from(selectedIds);
+        if (!ids.length) return;
+        if (viewMode === "trash") {
+          const confirmed = window.confirm(
+            `Hapus permanen ${ids.length} data di Trash? Tindakan ini tidak bisa dibatalkan.`
+          );
+          if (!confirmed) return;
+          await deletePermanent(ids);
+          return;
+        }
+        const confirmed = window.confirm(
+          `Arsipkan ${ids.length} reservasi terpilih? Data akan masuk ke Trash sebelum dihapus permanen.`
+        );
+        if (!confirmed) return;
+        await archiveBookings(ids);
+      });
+      editStatus?.addEventListener("change", updateStatusHighlight);
+      quickFilterButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          statusFilter.value = btn.getAttribute("data-status-filter");
+          applyProgressFilters();
+        });
+      });
+      customerSearch?.addEventListener("input", applyCustomerFilters);
+      customerSort?.addEventListener("change", applyCustomerFilters);
+      trashTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          trashTabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          viewMode = tab.getAttribute("data-trash") === "1" ? "trash" : "active";
+          selectedIds = new Set();
+          updateSelectionUI();
+          applyReservationFilters();
+        });
+      });
+
+      sidebarToggles.forEach((toggle) => {
+        toggle.addEventListener("click", () => {
+          if (window.innerWidth > 1000) {
+            adminShell.classList.toggle("collapsed");
+          } else {
+            sidebar.classList.toggle("open");
+            sidebarOverlay.classList.toggle("show");
+          }
+        });
+      });
+
+      sidebarClose?.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+      });
+
+      sidebar?.addEventListener("click", (event) => {
+        if (event.target.closest(".sidebar-nav")) return;
+        if (event.target.closest(".sidebar-brand")) return;
+      });
+
+      function updateStatusHighlight() {
+        if (!editStatusBadge || !editStatusHint || !editStatus) return;
+        const isCheckin = editStatus.value === "Check-in";
+        editStatusBadge.style.display = isCheckin ? "inline-flex" : "none";
+        editStatusHint.classList.toggle("show", isCheckin);
+      }
+
+      document.addEventListener("click", (event) => {
+        if (!sidebar.classList.contains("open")) return;
+        if (event.target.closest("#admin-sidebar")) return;
+        if (event.target.closest("[data-sidebar-toggle]")) return;
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+      });
+
+      walkinOpen?.addEventListener("click", () => {
+        const now = new Date();
+        walkinDate.value = now.toISOString().slice(0, 10);
+        walkinTime.value = now.toTimeString().slice(0, 5);
+        walkinStatus.value = "Check-in";
+        walkinForm.reset();
+        walkinDate.value = now.toISOString().slice(0, 10);
+        walkinTime.value = now.toTimeString().slice(0, 5);
+        walkinStatus.value = "Check-in";
+        walkinModal.setAttribute("aria-hidden", "false");
+      });
+
+      walkinClose?.addEventListener("click", () => {
+        walkinModal.setAttribute("aria-hidden", "true");
+      });
+
+      walkinForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = {
+          name: walkinName.value.trim(),
+          phone: walkinPhone.value.trim(),
+          plate: walkinPlate.value.trim(),
+          vehicle: walkinVehicle.value.trim(),
+          city: walkinCity.value.trim(),
+          service: walkinService.value,
+          date: walkinDate.value,
+          time: walkinTime.value,
+          complaint: walkinComplaint.value.trim(),
+          status: walkinStatus.value,
+        };
+
+        if (!payload.name || !payload.phone || !payload.plate || !payload.vehicle || !payload.city) {
+          statusEl.textContent = "Nama, No HP, Plat, Tipe/Merek, dan Kota wajib diisi.";
+          return;
+        }
+        if (!isValidPhone(payload.phone)) {
+          statusEl.textContent = "No HP tidak valid.";
+          return;
+        }
+        if (!isValidPlate(payload.plate)) {
+          statusEl.textContent = "Plat nomor tidak valid.";
+          return;
+        }
+
+        statusEl.textContent = "Menyimpan reservasi walk-in...";
+        try {
+          const res = await fetch("/api/bookings", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || "Gagal menyimpan reservasi");
+          }
+          statusEl.textContent = "Reservasi walk-in tersimpan.";
+          walkinModal.setAttribute("aria-hidden", "true");
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      });
+
+      async function archiveBookings(ids) {
+        statusEl.textContent = "Mengarsipkan reservasi terpilih...";
+        try {
+          const res = await fetch("/api/admin/bookings/archive", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal mengarsipkan data.");
+          statusEl.textContent = `Berhasil mengarsipkan ${data.archived || ids.length} reservasi.`;
+          selectedIds = new Set();
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      }
+
+      async function restoreBookings(ids) {
+        statusEl.textContent = "Memulihkan data dari Trash...";
+        try {
+          const res = await fetch("/api/admin/bookings/restore", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal memulihkan data.");
+          statusEl.textContent = `Berhasil memulihkan ${data.restored || ids.length} reservasi.`;
+          selectedIds = new Set();
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      }
+
+      async function deletePermanent(ids) {
+        statusEl.textContent = "Menghapus permanen data di Trash...";
+        try {
+          const res = await fetch("/api/admin/bookings/permanent-delete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal menghapus permanen.");
+          statusEl.textContent = `Berhasil menghapus permanen ${data.deleted || ids.length} reservasi.`;
+          selectedIds = new Set();
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      }
+
+      sidebarOverlay?.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+      });
+
+      csvInput?.addEventListener("change", async () => {
+        if (!csvInput.files?.length) return;
+        const file = csvInput.files[0];
+        const form = new FormData();
+        form.append("file", file);
+        statusEl.textContent = "Mengimpor CSV...";
+        try {
+          const res = await fetch("/api/admin/import-csv", {
+            method: "POST",
+            body: form,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal import CSV");
+          statusEl.textContent = `Import selesai: ${data.imported} data.`;
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        } finally {
+          csvInput.value = "";
+        }
+      });
+
+      exportBtn?.addEventListener("click", () => {
+        const params = new URLSearchParams();
+        if (searchInput.value.trim()) params.set("q", searchInput.value.trim());
+        if (dateFilter.value) params.set("date", dateFilter.value);
+        window.location.href = `/api/admin/export-csv?${params.toString()}`;
+      });
+
+
+      closeReschedule?.addEventListener("click", () => {
+        rescheduleModal.setAttribute("aria-hidden", "true");
+      });
+
+      rescheduleModal?.addEventListener("click", (event) => {
+        if (event.target === rescheduleModal) {
+          rescheduleModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      closeEdit?.addEventListener("click", () => {
+        editModal.setAttribute("aria-hidden", "true");
+      });
+
+      editModal?.addEventListener("click", (event) => {
+        if (event.target === editModal) {
+          editModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      closeProgress?.addEventListener("click", () => {
+        progressModal.setAttribute("aria-hidden", "true");
+      });
+
+      progressModal?.addEventListener("click", (event) => {
+        if (event.target === progressModal) {
+          progressModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      closeCustomer?.addEventListener("click", () => {
+        customerModal.setAttribute("aria-hidden", "true");
+      });
+
+      customerModal?.addEventListener("click", (event) => {
+        if (event.target === customerModal) {
+          customerModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      closeCustomerEdit?.addEventListener("click", () => {
+        customerEditModal.setAttribute("aria-hidden", "true");
+      });
+
+      customerEditModal?.addEventListener("click", (event) => {
+        if (event.target === customerEditModal) {
+          customerEditModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      rescheduleForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const id = rescheduleId.value;
+        const date = rescheduleDate.value;
+        const time = rescheduleTime.value;
+        const reason = rescheduleReason.value.trim();
+        if (!id || !date || !time || !reason) return;
+
+        try {
+          const res = await fetch(`/api/bookings/${id}/reschedule`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ date, time, reason }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal reschedule");
+          statusEl.textContent = "Reschedule berhasil.";
+          rescheduleModal.setAttribute("aria-hidden", "true");
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      });
+
+
+      editForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const id = editId.value;
+          const payload = {
+            name: editName.value.trim(),
+            phone: editPhone.value.trim(),
+            plate: editPlate.value.trim(),
+            vehicle: editVehicle.value.trim(),
+            city: editCity.value.trim(),
+            status: editStatus.value,
+            priority: editPriority.value,
+            mechanic: editMechanic.value,
+            service: editService.value.trim(),
+            date: editDate.value,
+            time: editTime.value,
+            complaint: editComplaint.value.trim(),
+          };
+        if (!payload.name || !payload.phone || !payload.plate || !payload.vehicle || !payload.city || !payload.status) {
+          statusEl.textContent = "Nama, No HP, Plat, Tipe/Merek, Kota, dan Status wajib diisi.";
+          return;
+        }
+        if (!isValidPhone(payload.phone)) {
+          statusEl.textContent = "No HP tidak valid.";
+          return;
+        }
+        if (!isValidPlate(payload.plate)) {
+          statusEl.textContent = "Plat nomor tidak valid.";
+          return;
+        }
+        if (!payload.date) {
+          payload.date = new Date().toISOString().slice(0, 10);
+        }
+        if (!payload.time) {
+          payload.time = "09:00";
+        }
+        try {
+          const res = await fetch(`/api/bookings/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal update reservasi");
+          statusEl.textContent = "Reservasi diperbarui.";
+          editModal.setAttribute("aria-hidden", "true");
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      });
+
+      progressForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const id = progressId.value;
+        const checkboxes = Array.from(progressSteps.querySelectorAll("input[type='checkbox']"));
+        const steps = progressStepLabels.map((label, idx) => ({
+          label,
+          done: Boolean(checkboxes[idx]?.checked),
+        }));
+        try {
+          const res = await fetch(`/api/bookings/${id}/progress`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              steps,
+              notes: progressNotes.value.trim(),
+              parts: progressParts.value
+                .split(",")
+                .map((p) => p.trim())
+                .filter(Boolean),
+              eta: progressEta.value,
+              cost: progressCost.value ? Number(progressCost.value) : 0,
+              images: progressImages,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal update progress");
+          statusEl.textContent = "Progress diperbarui.";
+          progressModal.setAttribute("aria-hidden", "true");
+          loadBookings();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        }
+      });
+
+      function renderProgressGallery() {
+        if (!progressGallery) return;
+        if (!progressImages.length) {
+          progressGallery.innerHTML = "<p class=\"chat-hint\">Belum ada foto.</p>";
+          return;
+        }
+        progressGallery.innerHTML = progressImages
+          .map(
+            (src) => `
+              <div class="progress-thumb">
+                <img src="${src}" alt="Progress foto" />
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      progressPhoto?.addEventListener("change", async () => {
+        if (!progressPhoto.files?.length) return;
+        const id = progressId.value;
+        const form = new FormData();
+        form.append("photo", progressPhoto.files[0]);
+        try {
+          const res = await fetch(`/api/bookings/${id}/progress/photo`, {
+            method: "POST",
+            body: form,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal upload foto");
+          progressImages.push(data.url);
+          renderProgressGallery();
+        } catch (error) {
+          statusEl.textContent = error.message;
+        } finally {
+          progressPhoto.value = "";
+        }
+      });
+
+      customerEditForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const oldPhone = customerEditPhoneOld.value;
+        const payload = {
+          name: customerEditName.value.trim(),
+          phone: customerEditPhone.value.trim(),
+          plate: customerEditPlate.value.trim(),
+          vehicle: customerEditVehicle.value.trim(),
+        };
+        if (!payload.name || !payload.phone) {
+          customerStatus.textContent = "Nama dan No HP wajib diisi.";
+          return;
+        }
+        if (!isValidPhone(payload.phone)) {
+          customerStatus.textContent = "No HP tidak valid.";
+          return;
+        }
+        try {
+          const res = await fetch(`/api/admin/customers/${encodeURIComponent(oldPhone)}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Gagal update pelanggan");
+          customerStatus.textContent = "Data pelanggan diperbarui.";
+          customerEditModal.setAttribute("aria-hidden", "true");
+          loadCustomers();
+        } catch (error) {
+          customerStatus.textContent = error.message;
+        }
+      });
+
+      function setActiveSection(section) {
+        if (section === "overview") {
+          overviewSection.style.display = "grid";
+          reservasiSection.style.display = "none";
+          pelangganSection.style.display = "none";
+          progressSection.style.display = "none";
+        } else if (section === "progress") {
+          overviewSection.style.display = "none";
+          reservasiSection.style.display = "none";
+          pelangganSection.style.display = "none";
+          progressSection.style.display = "block";
+          renderProgressList();
+        } else if (section === "pelanggan") {
+          overviewSection.style.display = "none";
+          reservasiSection.style.display = "none";
+          pelangganSection.style.display = "block";
+          progressSection.style.display = "none";
+          loadCustomers();
+        } else {
+          overviewSection.style.display = "none";
+          reservasiSection.style.display = "block";
+          pelangganSection.style.display = "none";
+          progressSection.style.display = "none";
+        }
+        navButtons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.section === section);
+        });
+      }
+
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setActiveSection(btn.dataset.section);
+          if (window.innerWidth <= 1000) {
+            sidebar.classList.remove("open");
+            sidebarOverlay.classList.remove("show");
+          }
+        });
+      });
+
+      checkAuth();
+      setInterval(loadBookings, 15000);
+      setActiveSection("overview");
+    </script>
+  </body>
+</html>

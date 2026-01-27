@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daftar Customer - Bengkel Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <main class="auth-shell">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="brand">Bengkel Assistant</div>
+          <p>Portal Customer</p>
+        </div>
+        <h1>Daftar</h1>
+        <p class="auth-sub">Buat akun untuk melihat riwayat servis.</p>
+        <form id="customer-signup-form" class="booking-form">
+          <label>
+            Nama
+            <input name="name" type="text" placeholder="Nama lengkap" required />
+          </label>
+          <label>
+            No HP / WhatsApp
+            <input name="phone" type="tel" placeholder="08xxxxxxxxxx" required />
+          </label>
+          <label>
+            Username
+            <input name="username" type="text" placeholder="username" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" placeholder="Minimal 6 karakter" required />
+          </label>
+          <button type="submit" class="primary">Buat Akun</button>
+        </form>
+        <div id="customer-signup-result" class="result"></div>
+        <div class="auth-footer">
+          Sudah punya akun?
+          <a href="/customer-login.html">Masuk</a>
+        </div>
+      </div>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

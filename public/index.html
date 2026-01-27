@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bengkel Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-image"></div>
+
+    <header class="hero-header simple-header">
+      <div class="brand">
+        <img src="/logo_panjang_bengkelwiguna%20.png" alt="Bengkel Wiguna" class="brand-logo" />
+      </div>
+      <a class="tagline-link" href="/customer-login.html">Portal Kustomer</a>
+    </header>
+
+    <main class="hero">
+      <section class="hero-copy">
+        <p class="eyebrow">Reservasi Servis Online</p>
+        <h1>
+          Biar Bengkel Wiguna Bantu Kamu.
+          <span>Masuk realtime ke admin MRA.</span>
+        </h1>
+        <p class="hero-sub">
+          Isi form ini untuk jadwal servis. Data langsung tersimpan dan bisa di-follow‑up
+          oleh tim bengkel tanpa menunggu lama.
+        </p>
+      </section>
+
+      <section class="hero-card lead-form">
+        <div class="hero-card-header">
+          <span>Form Reservasi</span>
+        </div>
+        <form id="booking-form" class="booking-form">
+          <label>
+            Nama
+            <input name="name" type="text" placeholder="Nama lengkap" required />
+          </label>
+          <label>
+            No HP / WhatsApp
+            <input name="phone" type="tel" placeholder="08xxxxxxxxxx" required />
+          </label>
+          <label>
+            Plat Nomor
+            <input name="plate" type="text" placeholder="B 1234 ABC" required />
+          </label>
+          <label>
+            Tipe / Merek Kendaraan
+            <input name="vehicle" type="text" placeholder="Contoh: Toyota Avanza 2021" required />
+          </label>
+          <label>
+            Kota Domisili
+            <input name="city" type="text" placeholder="Contoh: Depok" required />
+          </label>
+          <label>
+            Pilihan Servis
+            <select name="service" id="service-select" required></select>
+          </label>
+          <div class="row">
+            <label>
+              Tanggal
+              <input name="date" type="date" required />
+            </label>
+            <label>
+              Jam
+              <input name="time" type="time" required />
+            </label>
+          </div>
+          <label>
+            Keluhan (opsional)
+            <textarea name="complaint" rows="3" placeholder="Contoh: bunyi di kaki-kaki"></textarea>
+          </label>
+          <button type="submit" class="primary">Kirim Reservasi</button>
+        </form>
+        <div id="booking-result" class="result"></div>
+      </section>
+
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservasi Servis - Bengkel Assistant</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <header class="hero-header">
+      <div class="brand">Bengkel Assistant</div>
+      <nav class="hero-nav">
+        <a href="/">Beranda</a>
+        <a href="/booking.html">Reservasi</a>
+        <a href="/admin.html">Admin</a>
+      </nav>
+      <button class="ghost-btn" onclick="location.href='/'">Kembali</button>
+    </header>
+
+    <main class="section booking">
+      <div class="section-title">
+        <h2>Reservasi Servis</h2>
+        <p>Chat agent dan form reservasi ada di satu halaman.</p>
+      </div>
+
+      <div class="booking-grid">
+        <section class="panel chat-single">
+          <h3>Chat Agent</h3>
+          <p class="chat-hint">Tulis kebutuhan servis atau keluhan mobil kamu.</p>
+          <form id="chat-form" class="chat-bar">
+            <input
+              id="chat-input"
+              type="text"
+              placeholder="Contoh: mobil bunyi di kaki-kaki saat belok"
+              autocomplete="off"
+            />
+            <button type="submit" aria-label="Kirim pesan">↑</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <h3>Form Reservasi</h3>
+          <form id="booking-form" class="booking-form">
+            <label>
+              Nama
+              <input name="name" type="text" placeholder="Nama lengkap" required />
+            </label>
+            <label>
+              No HP / WhatsApp
+              <input name="phone" type="tel" placeholder="08xxxxxxxxxx" required />
+            </label>
+          <label>
+            Plat Nomor
+            <input name="plate" type="text" placeholder="B 1234 ABC" required />
+          </label>
+          <label>
+            Tipe / Merek Kendaraan
+            <input name="vehicle" type="text" placeholder="Contoh: Toyota Avanza 2021" required />
+          </label>
+          <label>
+            Kota Domisili
+            <input name="city" type="text" placeholder="Contoh: Depok" required />
+          </label>
+          <label>
+            Pilihan Servis
+            <select name="service" id="service-select" required></select>
+          </label>
+            <div class="row">
+              <label>
+                Tanggal
+                <input name="date" type="date" required />
+              </label>
+              <label>
+                Jam
+                <input name="time" type="time" required />
+              </label>
+            </div>
+            <label>
+              Keluhan (opsional)
+              <textarea name="complaint" rows="3" placeholder="Contoh: bunyi di kaki-kaki"></textarea>
+            </label>
+            <button type="submit" class="primary">Buat Reservasi</button>
+          </form>
+          <div id="booking-result" class="result"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 Bengkel Assistant</span>
+    </footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

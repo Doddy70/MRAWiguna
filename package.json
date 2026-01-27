@@ -1,0 +1,29 @@
+{
+  "name": "bengkel-assistant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "seed:customer": "node seed-customer.js",
+    "seed:customers": "node seed-customers-csv.js",
+    "seed:customers:bookings": "node seed-customers-from-bookings.js",
+    "reset:customer": "node reset-customer-password.js",
+    "import:csv": "node import-csv.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "better-sqlite3": "^12.6.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "openai": "^6.16.0",
+    "prisma": "^5.22.0"
+  }
+}
